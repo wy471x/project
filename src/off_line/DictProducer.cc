@@ -1,5 +1,4 @@
 #include"DictProducer.h"
-#include"SplitTool.h"
 //string -> wstring
 wstring s2Ws(const string& str){
     if(str.empty())

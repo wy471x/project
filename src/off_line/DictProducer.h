@@ -17,6 +17,8 @@
 #include<iostream>
 #include<set>
 using namespace std;
+class SplitTool;
+class SplitToolCppJieba;
 class DictProducer
 {
 public:
