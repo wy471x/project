@@ -1,4 +1,4 @@
-#include"Mydict.h"
+#include"Indextable.h"
 //单例模式创建一个实例
 wstring s2Ws(const string& str){
     if(str.empty()){
@@ -21,13 +21,13 @@ string ws2S(const wstring& wstr){
     string str(p.get());
     return str;
 }
-Mydict* Mydict::createInstance(){
+Indextable* Indextable::createInstance(){
    if(_instance == NULL)
-       _instance = new Mydict();
+       _instance = new  Indextable();
    return _instance;
 }
 //初始化词典
-void Mydict::init(const char* dictEnPath,const char* dictCnPath){
+void Indextable::init(const char* dictEnPath,const char* dictCnPath){
       ifstream ifs_en(dictEnPath);
       string word;
       int num;
@@ -42,15 +42,15 @@ void Mydict::init(const char* dictEnPath,const char* dictCnPath){
       }
 }
 //获取词典
-vector<pair<string,int>>& Mydict::getDict(){
+vector<pair<string,int>>& Indextable::getDict(){
     return _dict;
 }
 //获取索引表
-map<string,set<int>>& Mydict::getIndexTable(){
+map<string,set<int>>& Indextable::getIndexTable(){
     return _index_table;
 }
 //生成索引表
-void Mydict::produce_indextable(){
+void Indextable::produce_indextable(){
     for(size_t i = 0; i != _dict.size(); ++i){
         wstring tempwstr = s2Ws(_dict[i].first);
         for(auto j = tempwstr.begin(); j != tempwstr.end(); ++j){
@@ -61,7 +61,7 @@ void Mydict::produce_indextable(){
     }
 }
 //存储索引表
-void Mydict::store_index_file(const string& file){
+void Indextable::store_index_file(const string& file){
    ofstream ofs(file);
    for(auto& i : _index_table){
        ofs<<i.first<<" ";
@@ -71,7 +71,7 @@ void Mydict::store_index_file(const string& file){
    }
 }
 //测试，词典
-void Mydict::show_dict(){
+void Indextable::show_dict(){
     vector<pair<string,int>> pv = getDict();
     for(auto& it : pv)
         cout<<it.first<<" "<<it.second<<endl;

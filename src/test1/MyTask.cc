@@ -67,9 +67,43 @@ MyTask::MyTask(const string& qWord,const TcpConnectionPtr& conn)
 }
 //执行查询
 void MyTask::execute(){
-   queryIndexTable();
-   //读取查询结果，用小火车返回给客户端
-   response();
+    if(!queryCache())
+    {
+         queryIndexTable();
+         //读取查询结果，用小火车返回给客户端
+         priority_queue<MyResult,vector<MyResult>,MyCompare> tempqueue = _resultQue;
+         response();
+         if(!tempqueue.empty())
+         {
+             vector<string> elements;
+             string key = _queryWord;
+             size_t i = 5;
+             if(tempqueue.size() <= i)
+             {
+             while(!tempqueue.empty())
+             {
+                 MyResult temp = tempqueue.top();
+                 elements.push_back(temp._word);
+                 tempqueue.pop();
+             }
+             cout<<" add elements to cachenum : "<<wd::current_thread::threadnum<<endl;
+             CacheManager::getCache(wd::current_thread::threadnum).addElement(key,elements);
+             }
+             else
+             {
+                 size_t j = 0;
+                 while(j < i)
+                 {
+                     MyResult temp = tempqueue.top();
+                     elements.push_back(temp._word);
+                     tempqueue.pop();
+                     j++;
+                 }
+             cout<<" add elements to cachenum : "<<wd::current_thread::threadnum<<endl;
+             CacheManager::getCache(wd::current_thread::threadnum).addElement(key,elements);
+            } 
+       }
+  }
 }
 //进行计算
 void MyTask::statistic(set<int>& iset,int bitmap[]){
@@ -83,6 +117,39 @@ void MyTask::statistic(set<int>& iset,int bitmap[]){
             bitmap[*it] = 1;
         }
     }
+}
+//缓存查询
+bool MyTask::queryCache(){
+    int threadnum = wd::current_thread::threadnum; 
+    cout<<"query cachenum : "<<threadnum<<endl;
+    Cache& cache = CacheManager::getCache(threadnum);  
+ //   cout<<cache.gethashmap().size()<<endl; 
+    if(!cache.gethashmap().empty()){
+      if(cache.gethashmap().find(_queryWord)!= cache.gethashmap().end())
+      {
+         //切记for循环不要与迭代器混用 
+         // for(auto& it : cache.gethashmap()){     
+         //    cout<<it.first<<" ";
+         //    for(auto& i : it.second)
+         //        cout<<i<<" ";
+         //    cout<<endl;
+         //  } 
+          Train cachedata;
+          Value jsonstr;
+          //此处若将迭代器与for循环进行混用会造成乱码现象，不知为何
+          for(size_t i = 0; i < cache.gethashmap()[_queryWord].size(); ++i){
+             //  cout<<cache.gethashmap()[_queryWord][i]<<" ";
+              jsonstr[_queryWord].append(cache.gethashmap()[_queryWord][i]);
+          }
+         // cout<<endl;
+          strcpy(cachedata.buff,jsonstr.toStyledString().c_str());       
+  //        cout<<jsonstr.toStyledString().c_str()<<endl;
+          cachedata.len = strlen(cachedata.buff);
+          _conn->sendInLoop(cachedata);
+          return true;
+      }
+    }
+    return false;
 }
 //查询索引
 void MyTask::queryIndexTable(){
@@ -115,16 +182,18 @@ void MyTask::response(){
    size_t key = 5;
    MyResult temp;
    Value jsonstr;
+   
    if(_resultQue.size() >= key){
        while(key--){
           temp = _resultQue.top();
-          jsonstr["result"].append(temp._word);
+          jsonstr[_queryWord].append(temp._word);
           _resultQue.pop();
        }
    }else{
        while(!_resultQue.empty()){
            temp = _resultQue.top();
-           jsonstr["result"].append(temp._word);
+          // cout<<temp._word<<endl;
+           jsonstr[_queryWord].append(temp._word);
            _resultQue.pop();
        }
    }

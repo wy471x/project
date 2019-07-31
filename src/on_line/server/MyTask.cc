@@ -79,6 +79,7 @@ void MyTask::statistic(set<int>& iset,int bitmap[]){
             res._word = _mydict.getDict()[(*it) - 1].first;
             res._iFreq = _mydict.getDict()[(*it) - 1].second;
             res._iDist = distance(_mydict.getDict()[(*it) - 1].first);
+            cout<<"result:"<<res._word<<endl;
             _resultQue.push(res);
             bitmap[*it] = 1;
         }

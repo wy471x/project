@@ -2,3 +2,5 @@ ip 192.168.4.184
 port 8888
 threadnum 4
 queuesize 10
+cachenum  4
+cachefile /home/dunk/spellCorrect/data/Cache/cache

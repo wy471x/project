@@ -5,7 +5,9 @@ void test0(){
     map<string,string> configmap = myconf.getConfigMap();
     Threadpool threadpool(stoi(configmap["threadnum"]),stoi(configmap["queuesize"]));
     TcpServer server(configmap["ip"],stoi(configmap["port"]));
-    SpellcorrectServer spellcorrectserver(myconf,server,threadpool);   
+    CacheManager cachemanager(configmap["cachefile"],stoi(configmap["cachenum"]));
+    
+    SpellcorrectServer spellcorrectserver(myconf,server,threadpool,cachemanager);   
     spellcorrectserver.start();
 }
 int main()
