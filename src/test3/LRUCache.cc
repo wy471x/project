@@ -15,13 +15,14 @@ void LRUCache::put(string key,string value){
         _keys.insert(make_pair(key,_nodes.begin()));
         // == _keys[key] = _nodes.begin();
     }
-   // else{
+    else{
    //    //更新值
-   //   // it->second->value = value;
-   //   // _nodes.splice(_nodes.begin(),_nodes,it->second);//从一个list转移元素到另一个list
-   //   // cout<<" iterator change"<<endl;
-   //   // _keys[key] = _nodes.begin();
-   //}
+        // it->second->value = value;
+        _nodes.splice(_nodes.begin(),_nodes,it->second);
+        //从一个list转移元素到另一个list
+        cout<<" iterator change"<<endl;
+        _keys[key] = _nodes.begin();
+   }
 }
 //从缓冲区中获取数据
 string LRUCache::get(string key){
@@ -73,11 +74,11 @@ void LRUCache::readFromfile(const string& filename){
 void LRUCache::writeTofile(const string& filename){
         ofstream ofs_cache(filename);
         cout<<"write to file"<<endl;
-       if(!_nodes.empty()){ 
-        for(auto& i : _nodes){
-            cout<<i.key<<" ";
-            ofs_cache<<i.key<<" ";
-            istringstream istr(i.value);  
+       if(!_keys.empty()){ 
+        for(auto& i : _keys){
+            cout<<i.first<<" ";
+            ofs_cache<<i.first<<" ";
+            istringstream istr(i.second->value);  
             string j;
             while(istr>>j){
                  cout<<j<<" ";
@@ -88,15 +89,23 @@ void LRUCache::writeTofile(const string& filename){
         }
       }
         cout<<"write to file end..."<<endl;
+        ofs_cache.close();
 }
 //缓存更新
 void LRUCache::update(const LRUCache& rhs){
+    printf("%p\n",&rhs);
     if(!rhs._keys.empty()){
         cout<<" in update func"<<endl;
         cout<<"rhs size : "<<rhs._keys.size()<<endl;
         auto it = rhs._keys.begin();
         for(size_t i = 0; i < rhs._keys.size(); ++i){
-            cout<<"key:"<<(*it).first<<" value:"<<(*it).second->value<<endl;   
+            cout<<"key:"<<(*it).first<<" value:";
+            istringstream istr((*it).second->value);   
+            string word;
+            while(istr>>word){
+                cout<<word<<" ";
+            }
+            cout<<endl;
             put(it->first,it->second->value);//假设在一个缓存中有个元素处于链表尾的位置意味着
                //此元素为冷元素，如果在将其插入其他cache应当是无影响的
             ++it;

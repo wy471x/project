@@ -64,16 +64,19 @@ public:
              cout<<" updata cache ["<<i<<"]"<<endl;
              _cachelist[i].update(_cachelist[0]);
          }
-       // cout<<"after update cache 0 contents :"<<endl;
-       // auto _map = _cachelist[0].gethashmap();
-       // for(auto& i : _map){
-       //    cout<<i.first<<" :";
-       //    for(auto& j : i.second->value)
-       //        cout<<j<<" ";
-       //    cout<<endl;
-       // }
-        //cout<<endl;
-           _cachelist[0].writeTofile(_filename);//将零号缓存写入缓存文件作为备份
+        cout<<"after update cache 0 contents :"<<endl;
+        auto _map = _cachelist[0].gethashmap();
+        for(auto& i : _map){
+           cout<<i.first<<" :";
+           istringstream istr(i.second->value);
+           string word;
+           while(istr>>word){
+               cout<<word<<" ";
+           }
+           cout<<endl;
+        }
+       cout<<endl;
+        _cachelist[0].writeTofile(_filename);//将零号缓存写入缓存文件作为备份
     }
 private:
      static vector<LRUCache> _cachelist;//缓存的数量与线程个数一致
