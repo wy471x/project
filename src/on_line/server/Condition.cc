@@ -37,14 +37,14 @@ void Condition::wait()
 
 void Condition::notify()
 {
-	if(pthread_cond_signal(&_cond)) {
+	if(pthread_cond_signal(&_cond)) {  //激活一个等待该条件的线程，如果有多个线程等待，则按照入队顺序进行激活
 		perror("pthread_cond_signal");
 	}
 }
 
 void Condition::notifyAll()
 {
-	if(pthread_cond_broadcast(&_cond)) {
+	if(pthread_cond_broadcast(&_cond)) {  //激活所有等待的线程
 		perror("pthread_cond_broadcast");
 	}
 }
