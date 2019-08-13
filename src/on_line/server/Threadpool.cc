@@ -51,9 +51,9 @@ void Threadpool::stop()
 		_isExit = true;
 		cout << ">>> _isExit = true " << endl;
 
-		_que.wakeup();
+		_que.wakeup();  //任务执行速度过快，每一个线程陷于阻塞态，需要将所有线程唤醒
 
-		for(auto & thread : _threads) {
+		for(auto & thread : _threads) {//将线程资源进行回收
 			thread->join();
 		}
 	}
@@ -75,7 +75,8 @@ void Threadpool::threadFunc()
 	while(!_isExit) {
 		Task task = getTask();
 		if(task) {
-			task();
+			task();//任务执行速度过快，在还没将isExit设置为true之前，
+			//每一个子线程已经阻塞在了getTask()方法之上
 		}
 	}
 }
